@@ -1,0 +1,118 @@
+<div id="overview">
+  <div class="content" style="display: flex; flex-wrap: wrap; padding: 0.5rem">
+    Lade Inhalt...
+  </div>
+</div>
+
+<script src="./collectors/demo.js"></script>
+<script src="./collectors/events.js"></script>
+
+<script>
+  // overview (requires turn-contact-form-in-popup.hack)
+  const dataOverview = `
+  Wir wünschen fröhliche Weihnachten und einen guten Rutsch	01.01.2023	David Renner	david.renner@btv-turnen.de	Hartmut Jahn	hartmut.jahn@btv-turnen.de	48	9983
+`
+    .split('\n')
+    .filter((_) => !!_)
+    .map((_) => _.split('\t'))
+    .map(
+      ([
+        motd_text,
+        motd_eol,
+        contact_tech_name,
+        contact_tech_mail,
+        contact_orga_name,
+        contact_orga_mail,
+        clubs_count,
+        clubs_members,
+      ]) => ({
+        motd: { text: motd_text, eol: new Date(motd_eol) },
+        contact_tech: contact_tech_name &&
+          contact_tech_mail && {
+            name: contact_tech_name,
+            mail: contact_tech_mail,
+          },
+        contact_orga: contact_orga_name &&
+          contact_orga_mail && {
+            name: contact_orga_name,
+            mail: contact_orga_mail,
+          },
+        clubs: { count: clubs_count, members: clubs_members },
+      })
+    );
+
+  const formatterOverview = (dataOverview) => {
+    document.querySelector('#overview div.content').innerHTML = dataOverview
+      .map(
+        (_) =>
+          `
+  ${
+    new Date() < _.motd.eol
+      ? `<div style="flex:1 0 34%; min-width:200px; border: 1px solid #1d71b9; font-size: 2rem; margin: 0.5rem; padding: 0.5rem;">${_.motd.text}</div>`
+      : ``
+  }
+  ${
+    _.contact_tech || _.contact_orga
+      ? `<div style="flex:1 0 34%; min-width:600px;font-size: 2rem; display: flex;">
+    ${
+      _.contact_tech
+        ? `<button id="contact_tech" style="flex:1 0 26%; min-width:150px; background: #1d71b9; color: white; margin: 0.5rem; padding: 0.5rem;">Technischer Kontakt<br /><span style="font-size: 2rem">${_.contact_tech.name}</span></button>`
+        : ``
+    }
+    ${
+      _.contact_orga
+        ? `<button id="contact_orga" style="flex:1 0 26%; min-width:150px; background: #1d71b9; color: white; margin: 0.5rem; padding: 0.5rem;">Organisatorischer Kontakt <br /><span style="font-size: 2rem">${_.contact_orga.name}</span></button>`
+        : ``
+    }  
+  </div>`
+      : ``
+  }
+  ${
+    true
+      ? `<div style="flex:1 0 26%; min-width:200px; border: 1px solid #1d71b9; margin: 0.5rem; padding: 0.5rem;">Vereine / Mitglieder der Vereine <br /><span style="font-size: 2rem">${_.clubs.count} / ${_.clubs.members}</span></div>`
+      : ``
+  }
+  ${['', '', '']
+    .map(
+      (_) =>
+        `<div style="flex:1 0 26%; min-width:200px; margin: 0 0.5rem; padding: 0 0.5rem;"></div>`
+    )
+    .join('')}
+  ${
+    true
+      ? `<div style="flex:1 0 26%; min-width:200px; border: 1px solid #1d71b9; margin: 0.5rem; padding: 0.5rem;">Aktive Ausschreibung <br> ${
+          !!bidsLoading
+            ? `Lade weitere Nachrichten (${
+                bidsData.filter((_) => _.from).length
+              } von ${bidsData.length})`
+            : `<dl style="all: unset; list-style: none"> ${bidsData
+                .filter((_) => new Date() < (_.to ? _.to : _.from))
+                .filter((_) => _.docs?.['Ausschreibung'])
+                .map((_) => `<dt>${_.from.getDay()}.${_.from.getMonth()}: ${_.title} <a href="${_.link}">Event</a></dt><dd><a href="${_.docs['Ausschreibung']}">Ausschreibung</a></dd>`)
+                .join('')}</dl>`
+        } </div>`
+      : ``
+  }
+  `
+      )
+      .join('');
+    document.querySelector('#contact_tech') &&
+      document.querySelector('#contact_tech').addEventListener('click', () => {
+        document.querySelector('#addPopup').style.display = 'flex';
+      });
+    document.querySelector('#contact_orga') &&
+      document.querySelector('#contact_orga').addEventListener('click', () => {
+        document.querySelector('#addPopup').style.display = 'flex';
+      });
+  };
+
+  addNewsCB((news, loading) => {
+    bidsData = news;
+    bidsLoading = loading;
+    formatterOverview(dataOverview);
+  });
+
+  setTimeout(() => {
+    formatterOverview(dataOverview);
+  }, 1000);
+</script>
