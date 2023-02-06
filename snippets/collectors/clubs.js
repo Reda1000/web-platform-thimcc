@@ -52,20 +52,19 @@ clubs.set = (cb) => {
   clubs = cb(clubs);
   clubs.cbs.forEach((_) => _(clubs));
 };
-window.addEventListener('hashchange', function () {
-  if (!window.location.hash.length) return document.querySelector('div#clubs_popup').style.display = 'none';
-
-  const [action, param] = window.location.hash.split('#')[1].split('=');
-  const [name, value] = param.split('_');
-
-  if (action === 'popup') {
-    document.querySelector('div#clubs_popup').style.display = 'flex';
-    clubs.popupCbs[name].forEach((_) =>
-      _(
-        value,
-        document.querySelector('div#clubs_popup'),
-        document.querySelector('div#clubs_popup div')
-      )
-    );
-  }
+// Use it like this:
+window.addEventListener('replaceState', function () {
+  console.log('11', getRouterParam('popup'));
+  if (!getRouterParam('popup'))
+    return (document.querySelector('div#clubs_popup').style.display = 'none');
+  const [name, value] = getRouterParam('popup').split('_');
+  console.log(name, value);
+  document.querySelector('div#clubs_popup').style.display = 'flex';
+  clubs.popupCbs[name].forEach((_) =>
+    _(
+      value,
+      document.querySelector('div#clubs_popup'),
+      document.querySelector('div#clubs_popup div')
+    )
+  );
 });
