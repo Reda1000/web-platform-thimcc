@@ -1,29 +1,24 @@
-<div style="display: flex; border-bottom: 1px solid black; margin: 0.5rem; padding: 0.5rem; ">
+<div style="display: flex; border-bottom: 1px solid black; margin: 0.5rem; padding: 0.5rem;">
   <div><span>Collector-Code</span><br /><textarea class="collector"></textarea></div>
   <div><span>View-HTML</span><br /><textarea class="view"></textarea></div>
   <div><span>View-Code</span><br /><textarea class="controller"></textarea></div>
 </div>
 
 <div id="view">
-  <div id="clubs">
+  <div id="users">
     <div class="control" style="display: flex; align-items: center; justify-content: space-between"></div>
-    <div class="content" style="display: flex; flex-direction: row; padding: 0.5rem; flex-wrap: wrap;">
+    <div class="content" style="display: flex; flex-wrap: wrap; padding: 0.5rem; color: white">
       Lade Inhalt...
-    </div>
-    <div id="clubs_popup"
-      style="position: fixed; display: none; z-index: 100; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); flex-direction: column; align-items: center; justify-content: center"
-    >
-      <div style="background: white; width: 60vw; display: flex; min-width:400px; max-width:600px;"></div>
     </div>
   </div>
 </div>
 
 <script src="./collectors/router.js" id=""></script>
-<script src="./collectors/clubs.js" id="collector"></script>
-<script src="./views/clubs.js" id="controller"></script>
+<script src="./collectors/users.js" id="collector"></script>
+<script src="./views/users.js" id="controller"></script>
 
-<script>
-const exports = {};
+<script> 
+const exports = {}; 
 </script>
 <script src="https://unpkg.com/jsmin@1.0.1/jsmin.js"></script>
 <script>
@@ -33,9 +28,10 @@ document.querySelector('.view').innerText = `${document.querySelector('#view').i
   fetch(document.querySelector('#collector').src)
     .then((_) => _.text())
     .then((_) => (document.querySelector('.collector').value = 
-      `${exports.jsmin(_.split('//EXCELSPLIT')[1]).trim()}`));
+      `<script>${exports.jsmin(_).trim()}</s${'' /*for stackblitz*/}cript>`));
   fetch(document.querySelector('#controller').src)
     .then((_) => _.text())
     .then((_) => (document.querySelector('.controller').value = 
-      `${exports.jsmin(_).trim()}`));
+      `<script>${_.replace(/\n[ ]*/g,'')}</s${'' /*for stackblitz*/}cript>`));
 </script>
+
